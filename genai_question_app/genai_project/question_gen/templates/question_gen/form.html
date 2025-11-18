@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><title>GenAI Question Generator</title></head>
+<body>
+    <h1>Enter a Prompt to Generate Questions</h1>
+    <form method="post">
+        {% csrf_token %}
+        <textarea name="prompt" rows="4" cols="50" placeholder="e.g., Explain quantum computing"></textarea><br>
+        <button type="submit">Generate Questions</button>
+    </form>
+</body>
+</html>

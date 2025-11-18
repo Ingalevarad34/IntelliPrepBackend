@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Quiz Complete! - {{ topic }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 20px 0;
+        }
+
+        .message {
+            font-size: 18px;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .great {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .good {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        button {
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        .history {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .history-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 3px solid #007bff;
+            background: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>{{ topic }} Quiz Complete!</h1>
+
+    <!-- Final Messages -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="score">Explored {{ total_steps }} Concepts ({{ percentage }}% Correct)</div>
+
+    {% if percentage >= 80 %}
+    <div class="message great">Excellent depth! You're mastering {{ topic }}.</div>
+    {% elif percentage >= 60 %}
+    <div class="message good">Solid exploration—keep nesting deeper!</div>
+    {% else %}
+    <div class="message good">Great start! Review the path below.</div>
+    {% endif %}
+    {% if document_summary %}
+    <div class="summary"><strong>Document Summary:</strong> {{ document_summary|truncatewords:50 }}...</div>
+    {% endif %}
+    <!-- Full History Review -->
+    <div class="history-item">
+        <strong>Q{{ forloop.counter }}:</strong> {{ entry.question|truncatewords:8 }} (L{{ entry.nest_level }})<br>
+        <em>Your A:</em> {{ entry.user_answer|truncatewords:6 }}<br>
+        <em>Feedback:</em> {{ entry.feedback|truncatewords:10 }}<br>
+        <em>Next Concept:</em> {{ entry.concept }}
+        {% if entry.compliment %}<br><em>Compliment:</em> {{ entry.compliment|truncatewords:8 }}{% endif %}
+    </div>
+
+    <a href="{% url 'landing' %}"><button>Start New Quiz</button></a>
+</body>
+
+</html>

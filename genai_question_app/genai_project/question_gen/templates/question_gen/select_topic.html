@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head><title>Select Topic or Upload</title></head>
+<body>
+    <h1>Start Your Quiz</h1>
+    <form method="post" enctype="multipart/form-data">  <!-- NEW: enctype for files -->
+        {% csrf_token %}
+        <p><strong>Option 1: Choose a Topic</strong></p>
+        <p>
+            <input type="radio" name="upload_option" value="topic" id="topic" checked>
+            <label for="topic">Use Predefined Topic</label><br>
+            <input type="radio" name="topic" value="java" id="java">
+            <label for="java">Java</label><br>
+            <input type="radio" name="topic" value="javascript" id="javascript">
+            <label for="javascript">JavaScript</label><br>
+            <input type="radio" name="topic" value="reactjs" id="reactjs">
+            <label for="reactjs">ReactJS</label>
+        </p>
+        <p><strong>Option 2: Upload Document (PDF)</strong></p>
+        <p>
+            <input type="radio" name="upload_option" value="file" id="file">
+            <label for="file">Upload PDF for Custom Quiz</label><br>
+            <input type="file" name="document" accept=".pdf" style="display:none;" id="file-input">
+            <label for="file-input" style="cursor:pointer; color:blue;">Choose PDF File</label>
+        </p>
+        <script>
+            document.getElementById('file').addEventListener('change', function() {
+                document.getElementById('file-input').style.display = this.checked ? 'block' : 'none';
+            });
+        </script>
+        <button type="submit">Start Quiz</button>
+    </form>
+    <a href="{% url 'landing' %}">Back to Home</a>
+</body>
+</html>
