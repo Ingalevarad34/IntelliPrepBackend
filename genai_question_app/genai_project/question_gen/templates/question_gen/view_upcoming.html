@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head><title>Upcoming Meets</title></head>
+<body>
+    <h1>Upcoming Events</h1>
+    <ul>
+        {% for event in events %}
+            <li>{{ event.summary }} ({{ event.start.dateTime }}) - Meet: <a href="{{ event.hangoutLink }}">{{ event.hangoutLink }}</a></li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'calendar_page' %}">Back</a>
+</body>
+</html>

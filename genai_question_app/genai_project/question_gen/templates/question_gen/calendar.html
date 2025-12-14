@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>Calendar Integration</title></head>
+<body>
+    <h1>Google Calendar & Meet</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    <a href="{% url 'schedule_meet' %}"><button>Schedule New Meet</button></a>
+    <a href="{% url 'view_scheduled' %}"><button>View Scheduled Meets</button></a>
+    <a href="{% url 'view_upcoming' %}"><button>See Upcoming Meets</button></a>
+    <a href="{% url 'landing' %}">Back to Quiz</a>
+</body>
+</html>

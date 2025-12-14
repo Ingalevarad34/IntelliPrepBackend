@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>Schedule Meet</title></head>
+<body>
+    <h1>Schedule New Google Meet</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label>Summary:</label><input type="text" name="summary" required><br>
+        <label>Description:</label><textarea name="description"></textarea><br>
+        <label>Start (ISO):</label><input type="datetime-local" name="start" required><br>
+        <label>End (ISO):</label><input type="datetime-local" name="end" required><br>
+        <button type="submit">Schedule</button>
+    </form>
+    <a href="{% url 'calendar_page' %}">Back</a>
+</body>
+</html>

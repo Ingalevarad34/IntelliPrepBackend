@@ -16,6 +16,14 @@ import tempfile  # FIXED: Import early
 from dotenv import load_dotenv
 load_dotenv()  # At top, after imports
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+
+
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:8000/calendar/oauth2callback/')
+
+
+
 # FIXED: Define BASE_DIR early (before any references)
 BASE_DIR = Path(__file__).resolve().parent.parent
 

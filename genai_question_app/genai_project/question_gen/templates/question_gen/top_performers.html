@@ -1,0 +1,21 @@
+<!-- Top Performers Section -->
+<section id="top-performers" class="top-performers">
+    <div class="container">
+        <h2 class="section-title">Connect with Top Performers</h2>
+        <p class="section-subtitle">Learn from students who cracked high-package jobs</p>
+        <div class="performers-grid">
+            {% for user in users %}
+                <div class="performer-card">
+                    <img src="{{ user.image }}" alt="{{ user.name }}" class="profile-img">
+                    <h3>{{ user.name }}</h3>
+                    <p class="package">{{ user.package }} at {{ user.company }}</p>
+                    <p class="role">{{ user.role }}</p>
+                    <p class="bio">{{ user.bio }}</p>
+                    <a href="{% url 'user_profile' user.id %}">
+                        <button class="view-profile-btn">View Profile & Chat</button>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

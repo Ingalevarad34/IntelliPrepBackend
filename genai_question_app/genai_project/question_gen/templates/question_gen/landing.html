@@ -1,9 +1,923 @@
-<!DOCTYPE html>
-<html>
-<head><title>Programming Quiz App</title></head>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InterviewPrep Pro - Your Complete Interview Preparation Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* All your CSS from previous message - embedded here */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #fff;
+        }
+
+        :root {
+            --primary: #800000;
+            --accent: #FFC72C;
+            --background: #FFFFFF;
+            --text: #000000;
+            --light-gray: #f5f5f5;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .desktop-nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .desktop-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .desktop-nav a:hover {
+            color: var(--accent);
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: var(--primary);
+            color: #fff;
+            transition: left 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 10px var(--shadow);
+        }
+
+        .drawer.open {
+            left: 0;
+        }
+
+        .drawer-content {
+            padding: 2rem;
+        }
+
+        .drawer h2 {
+            margin-bottom: 2rem;
+            color: var(--accent);
+        }
+
+        .drawer nav {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .drawer nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .drawer nav a:hover {
+            color: var(--accent);
+            transform: translateX(10px);
+            border-left-color: var(--accent);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: var(--accent);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary), #a52a2a);
+            color: #fff;
+            padding: 4rem 0;
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .cta-btn {
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 199, 44, 0.4);
+        }
+
+        .hero-image img {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 3rem;
+        }
+
+        .services {
+            padding: 4rem 0;
+            background: var(--light-gray);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            border-top: 4px solid var(--accent);
+            transition: all 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .mock-interviews {
+            padding: 4rem 0;
+        }
+
+        .interview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .interview-card {
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px var(--shadow);
+            transition: 0.3s;
+        }
+
+        .interview-card:hover {
+            transform: scale(1.05);
+        }
+
+        .interview-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .card-stats {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            color: #666;
+        }
+
+        .schedule-btn {
+            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .schedule-btn:hover {
+            background: #a52a2a;
+        }
+
+        .gallery {
+            padding: 4rem 0;
+            background: var(--light-gray);
+        }
+
+        .gallery-slider {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            height: 500px;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px var(--shadow);
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .slide-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(128, 0, 0, 0.95), transparent);
+            color: #fff;
+            padding: 2rem;
+        }
+
+        .slide-overlay h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .slider-dots {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #ccc;
+            border-radius: 50%;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: var(--primary);
+        }
+
+        .contact {
+            padding: 4rem 0;
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .info-item {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-item i {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-top: 0.3rem;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        footer {
+            background: var(--primary);
+            color: #fff;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3,
+        .footer-section h4 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: #fff;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Top Performers Section */
+        .top-performers {
+            padding: 4rem 0;
+            background: var(--light-gray);
+        }
+
+        .performers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .performer-card {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+            padding-bottom: 20px;
+        }
+
+        .performer-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+        }
+
+        .performer-card h3 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin: 20px 0 10px;
+        }
+
+        .package {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 10px 0;
+        }
+
+        .company {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .bio {
+            font-size: 1.1rem;
+            color: #555;
+            padding: 0 20px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .connect-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .connect-btn:hover {
+            background: var(--accent);
+            color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .menu-btn {
+                display: block;
+            }
+
+            .desktop-nav {
+                display: none;
+            }
+
+            .hero .container {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-content h1 {
+                font-size: 2.2rem;
+            }
+
+            .contact-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script>
+        function toggleDrawer() {
+            document.getElementById('drawer').classList.toggle('open');
+        }
+
+        // Simple slider (you can enhance later)
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+
+        function showSlide(n) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === n);
+                dots[i].classList.toggle('active', i === n);
+            });
+        }
+
+        function currentSlide(n) {
+            currentSlideIndex = n;
+            showSlide(currentSlideIndex);
+        }
+
+        // Auto slide every 5 seconds
+        setInterval(() => {
+            currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+            showSlide(currentSlideIndex);
+        }, 5000);
+    </script>
+</head>
+
 <body>
-    <h1>Welcome to the Programming Quiz!</h1>
-    <p>Test your knowledge on popular languages and frameworks.</p>
-    <a href="{% url 'select_topic' %}"><button>Start Quiz</button></a>
+    <!-- Navigation Drawer -->
+    <div id="drawer" class="drawer">
+        <button class="close-btn" onclick="toggleDrawer()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="drawer-content">
+            <h2>Menu</h2>
+            <nav>
+                <a href="#home" onclick="toggleDrawer()">Home</a>
+                <a href="{% url 'select_topic' %}" onclick="toggleDrawer()">Start Quiz</a>
+                <a href="{% url 'start_manual_meet' %}" onclick="toggleDrawer()">Virtual Interview</a>
+                <a href="#contact" onclick="toggleDrawer()">Contact</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <button class="menu-btn" onclick="toggleDrawer()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>InterviewPrep Pro</span>
+            </div>
+            <nav class="desktop-nav">
+                <a href="#home">Home</a>
+                <a href="{% url 'select_topic' %}">Start Quiz</a>
+                <a href="{% url 'start_manual_meet' %}">Virtual Interview</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Ace Your Next Interview</h1>
+                <p>Complete platform for students to prepare, practice, and excel in interviews with AI-powered tools
+                </p>
+                <a href="{% url 'select_topic' %}">
+                    <button class="cta-btn">Start AI Quiz</button>
+                </a>
+                <a href="{% url 'start_manual_meet' %}" style="margin-left: 20px;">
+                    <button class="cta-btn" style="background: #4CAF50;">Start Virtual Interview</button>
+                </a>
+            </div>
+            <div class="hero-image">
+                <img src="https://images.pexels.com/photos/5940841/pexels-photo-5940841.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    alt="Student preparing for interview" />
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <h2 class="section-title">Our Services</h2>
+            <p class="section-subtitle">Comprehensive tools to boost your interview preparation</p>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>AI Quiz Generator</h3>
+                    <p>Test your knowledge with adaptive AI-generated quizzes</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h3>RAG PDF Quiz</h3>
+                    <p>Upload your study material and get personalized quizzes</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3>Virtual Interview</h3>
+                    <p>Start instant Google Meet for mock interviews</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mock Interview Cards -->
+    <section id="features" class="mock-interviews">
+        <div class="container">
+            <h2 class="section-title">Start Mock Interviews</h2>
+            <p class="section-subtitle">Practice different types of interviews</p>
+            <div class="interview-cards">
+                <div class="interview-card">
+                    <img src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="Technical" />
+                    <div class="card-content">
+                        <h3>Technical Interview</h3>
+                        <p>Coding & system design practice</p>
+                        <a href="{% url 'start_manual_meet' %}">
+                            <button class="schedule-btn">Start Now</button>
+                        </a>
+                    </div>
+                </div>
+                <div class="interview-card">
+                    <img src="https://images.pexels.com/photos/7688460/pexels-photo-7688460.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="Behavioral" />
+                    <div class="card-content">
+                        <h3>Behavioral Interview</h3>
+                        <p>STAR method & storytelling</p>
+                        <a href="{% url 'start_manual_meet' %}">
+                            <button class="schedule-btn">Start Now</button>
+                        </a>
+                    </div>
+                </div>
+                <div class="interview-card">
+                    <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="HR" />
+                    <div class="card-content">
+                        <h3>HR Interview</h3>
+                        <p>Salary negotiation & culture fit</p>
+                        <a href="{% url 'start_manual_meet' %}">
+                            <button class="schedule-btn">Start Now</button>
+                        </a>
+                    </div>
+                </div>
+                <div class="interview-card">
+                    <img src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="Group" />
+                    <div class="card-content">
+                        <h3>Group Discussion</h3>
+                        <p>Practice with peers</p>
+                        <a href="{% url 'start_manual_meet' %}">
+                            <button class="schedule-btn">Start Now</button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Top Performers Section - ADD THIS AFTER Mock Interviews section -->
+    <section id="top-performers" class="top-performers">
+        <div class="container">
+            <h2 class="section-title">Connect with Top Performers</h2>
+            <p class="section-subtitle">Learn from students who landed high-package jobs at top companies</p>
+            <div class="performers-grid">
+                <!-- User 1 -->
+                <div class="performer-card">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Aman Gupta" class="profile-img">
+                    <h3>Aman Gupta</h3>
+                    <p class="package">45 LPA</p>
+                    <p class="company">Google • Senior Software Engineer</p>
+                    <p class="bio">Ex-Amazon | Helped 200+ students crack FAANG</p>
+                    <a href="{% url 'user_profile' 1 %}">
+                        <button class="connect-btn">Connect & Chat</button>
+                    </a>
+                </div>
+
+                <!-- User 2 -->
+                <div class="performer-card">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Priya Sharma" class="profile-img">
+                    <h3>Priya Sharma</h3>
+                    <p class="package">52 LPA</p>
+                    <p class="company">Microsoft • Principal Engineer</p>
+                    <p class="bio">Mentored 150+ students to top tech roles</p>
+                    <a href="{% url 'user_profile' 2 %}">
+                        <button class="connect-btn">Connect & Chat</button>
+                    </a>
+                </div>
+
+                <!-- User 3 -->
+                <div class="performer-card">
+                    <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Rahul Verma" class="profile-img">
+                    <h3>Rahul Verma</h3>
+                    <p class="package">38 LPA</p>
+                    <p class="company">Atlassian • Staff Engineer</p>
+                    <p class="bio">Ex-Flipkart | DSA & System Design Expert</p>
+                    <a href="{% url 'user_profile' 3 %}">
+                        <button class="connect-btn">Connect & Chat</button>
+                    </a>
+                </div>
+
+                <!-- Add more users as needed -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery">
+        <div class="container">
+            <h2 class="section-title">Success Stories & Motivation</h2>
+            <p class="section-subtitle">Get inspired by success stories and motivational content</p>
+            <div class="gallery-slider">
+                <div class="slide active">
+                    <img src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800"
+                        alt="Success Story" />
+                    <div class="slide-overlay">
+                        <h3>"Believe in yourself and all that you are"</h3>
+                        <p>Success comes to those who prepare diligently</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <img src="https://images.pexels.com/photos/1438072/pexels-photo-1438072.jpeg?auto=compress&cs=tinysrgb&w=800"
+                        alt="Motivation" />
+                    <div class="slide-overlay">
+                        <h3>"The only way to do great work is to love what you do"</h3>
+                        <p>Passion drives excellence</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <img src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800"
+                        alt="Achievement" />
+                    <div class="slide-overlay">
+                        <h3>"Success is not final, failure is not fatal"</h3>
+                        <p>Keep pushing forward with determination</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <img src="https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=800"
+                        alt="Teamwork" />
+                    <div class="slide-overlay">
+                        <h3>"Excellence is not a destination, it's a journey"</h3>
+                        <p>Every step counts towards your goal</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-dots">
+                <span class="dot active" onclick="currentSlide(0)"></span>
+                <span class="dot" onclick="currentSlide(1)"></span>
+                <span class="dot" onclick="currentSlide(2)"></span>
+                <span class="dot" onclick="currentSlide(3)"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Get In Touch</h2>
+            <p class="section-subtitle">Have questions? We'd love to hear from you</p>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Email</h4>
+                            <p>support@interviewpreppro.com</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Phone</h4>
+                            <p>+1 (555) 123-4567</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>Address</h4>
+                            <p>123 Learning Street, Education City, EC 12345</p>
+                        </div>
+                    </div>
+                </div>
+                <form class="contact-form" method="post" action="#contact">
+                    {% csrf_token %}
+                    <input type="text" name="name" placeholder="Your Name" required />
+                    <input type="email" name="email" placeholder="Your Email" required />
+                    <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>InterviewPrep Pro</h3>
+                    <p>Your complete platform for interview preparation and career success</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#gallery">Gallery</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#services">AI Chatbot</a></li>
+                        <li><a href="#services">Voice Assistant</a></li>
+                        <li><a href="#services">Interview Scheduler</a></li>
+                        <li><a href="#services">AI Quiz</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> support@interviewpreppro.com</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Education City, EC 12345</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 InterviewPrep Pro. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 </body>
+
 </html>
