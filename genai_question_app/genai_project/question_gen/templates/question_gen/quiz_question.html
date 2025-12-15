@@ -153,12 +153,7 @@
             {% endfor %}
         {% endif %}
 
-        <!-- Compliment -->
-        {% if compliment %}
-            <div class="compliment">
-                {{ compliment }}
-            </div>
-        {% endif %}
+        
 
         <!-- Recent History -->
         {% if history %}
@@ -171,6 +166,13 @@
                         <strong>Feedback:</strong> {{ entry.feedback }}
                     </div>
                 {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Compliment -->
+        {% if compliment %}
+            <div class="compliment">
+                {{ compliment }}
             </div>
         {% endif %}
 

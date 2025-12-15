@@ -282,7 +282,7 @@ def quiz_view(request, topic):
             return redirect('quiz_view', topic=topic)
 
         try:
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('gemini-2.5-flash')
             base_context = f"Document summary: {summary}. " if summary else ''
             context = base_context + '\n'.join([f"Q: {h['question']} A: {h['user_answer']}" for h in history[-3:]])
 
