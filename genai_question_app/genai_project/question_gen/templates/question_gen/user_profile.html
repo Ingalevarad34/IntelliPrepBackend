@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ user.name }} - InterviewPrep Pro</title>
+    <title>{{ interviewer.username }} - InterviewPrep Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         body {
@@ -17,71 +17,94 @@
             justify-content: center;
             align-items: center;
         }
+
         .container {
             background: rgba(255, 255, 255, 0.95);
             padding: 60px;
             border-radius: 20px;
             max-width: 800px;
             text-align: center;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
         }
+
         .profile-img {
-            width: 150px;
-            height: 150px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
-            border: 5px solid #FFC72C;
+            object-fit: cover;
+            border: 6px solid #FFC72C;
             margin-bottom: 20px;
         }
+
         h1 {
             font-size: 3em;
             color: #800000;
             margin-bottom: 10px;
         }
+
         .package {
-            font-size: 2em;
+            font-size: 2.2em;
             color: #4CAF50;
             font-weight: bold;
             margin: 20px 0;
         }
+
         .info {
-            font-size: 1.4em;
+            font-size: 1.5em;
             margin: 15px 0;
             color: #555;
         }
+
         .bio {
-            font-size: 1.3em;
+            font-size: 1.4em;
             line-height: 1.8;
             margin: 40px 0;
-            padding: 20px;
+            padding: 30px;
             background: #f8f9fa;
             border-radius: 15px;
+            border-left: 6px solid #800000;
         }
+
         .document-section {
             margin: 50px 0;
-            padding: 30px;
+            padding: 40px;
             background: #f0f8ff;
             border-radius: 15px;
             border: 2px dashed #800000;
         }
+
         .document-section h3 {
             color: #800000;
             margin-bottom: 20px;
         }
-        input[type="file"] {
+
+        input[type="file"],
+        input[type="datetime-local"],
+        textarea {
             padding: 15px;
             font-size: 1.2em;
-            margin: 20px 0;
+            margin: 15px 0;
+            width: 100%;
+            border-radius: 15px;
+            border: 2px solid #ddd;
         }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
         .share-link {
             background: #d4edda;
-            padding: 20px;
+            padding: 25px;
             border-radius: 15px;
-            margin: 20px 0;
+            margin: 25px 0;
             word-break: break-all;
-            font-size: 1.2em;
+            font-size: 1.1em;
         }
-        .chat-btn, .upload-btn {
+
+        .action-btn {
             padding: 20px 60px;
             font-size: 1.8em;
             background: #4CAF50;
@@ -91,15 +114,44 @@
             cursor: pointer;
             margin: 20px;
             transition: all 0.3s;
+            display: inline-block;
+            text-decoration: none;
         }
-        .chat-btn:hover, .upload-btn:hover {
+
+        .action-btn:hover {
             background: #45a049;
             transform: scale(1.05);
         }
+
+        .chat-btn {
+            background: #007bff;
+        }
+
+        .chat-btn:hover {
+            background: #0056b3;
+        }
+
+        .meet-btn {
+            background: #FF5722;
+        }
+
+        .meet-btn:hover {
+            background: #e64a19;
+        }
+
+        .upload-btn {
+            background: #FFC72C;
+            color: #800000;
+        }
+
+        .upload-btn:hover {
+            background: #ffb300;
+        }
+
         .back-btn {
             color: #800000;
             text-decoration: none;
-            font-size: 1.2em;
+            font-size: 1.3em;
             margin-top: 30px;
             display: inline-block;
         }
@@ -107,38 +159,87 @@
 </head>
 <body>
     <div class="container">
-        <img src="{{ user.image }}" alt="{{ user.name }}" class="profile-img">
-        <h1>{{ user.name }}</h1>
-        <div class="package">{{ user.package }} at {{ user.company }}</div>
-        <div class="info"><strong>Role:</strong> {{ user.role }}</div>
-        <div class="info"><strong>Skills:</strong> {{ user.skills }}</div>
-        <div class="bio">{{ user.bio }}</div>
+        {% if interviewer.profile_image %}
+            <img src="{{ interviewer.profile_image }}" alt="{{ interviewer.username }}" class="profile-img">
+        {% else %}
+            <img src="https://randomuser.me/api/portraits/lego/1.jpg" alt="{{ interviewer.username }}" class="profile-img">
+        {% endif %}
 
-        <!-- Document Sharing Section -->
-        <div class="document-section">
-            <h3>Share Your Document (Resume, Code, Notes)</h3>
-            <p>Upload your file and get a shareable link to send in the interview chat</p>
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="file" name="document" accept=".pdf,.doc,.docx,.txt,.py,.java,.js" required>
-                <button type="submit" class="upload-btn">Upload & Get Share Link</button>
-            </form>
+        <h1>{{ interviewer.username }}</h1>
+        {% if interviewer.package %}
+            <div class="package">{{ interviewer.package }}</div>
+        {% endif %}
+        {% if interviewer.company or interviewer.role %}
+            <div class="info">
+                <strong>Company:</strong> {{ interviewer.company|default:"Not specified" }}<br>
+                <strong>Role:</strong> {{ interviewer.role|default:"Not specified" }}
+            </div>
+        {% endif %}
+        {% if interviewer.skills %}
+            <div class="info"><strong>Expertise:</strong> {{ interviewer.skills }}</div>
+        {% endif %}
 
-            <!-- Show share link after upload (mock - in real app, save to drive) -->
-            {% if shared_link %}
-                <div class="share-link">
-                    <strong>Your document is ready! Share this link in chat:</strong><br>
-                    <a href="{{ shared_link }}" target="_blank">{{ shared_link }}</a>
-                </div>
-            {% endif %}
+        <div class="bio">
+            {{ interviewer.bio|default:"This mentor is passionate about helping students crack interviews and grow in their careers." }}
         </div>
 
-        <!-- Start Chat Button -->
-        <a href="{% url 'start_manual_meet' %}">
-            <button class="chat-btn">
-                <i class="fas fa-video"></i> Start Virtual Interview Chat
-            </button>
+        <!-- Start Chat (Visible to Both) -->
+        <a href="{% url 'chat' interviewer.id %}" class="action-btn chat-btn">
+            <i class="fas fa-comments"></i> Start Chat
         </a>
+
+        <!-- Launch Meet (Only for Interviewer) -->
+        {% if request.user == interviewer %}
+            <a href="{% url 'start_manual_meet' %}" class="action-btn meet-btn">
+                <i class="fas fa-video"></i> Launch Virtual Interview Meet
+            </a>
+        {% endif %}
+
+        <!-- Document Sharing (For Student) -->
+        {% if request.user.user_type == 'student' %}
+            <div class="document-section">
+                <h3>Share Your Document</h3>
+                <p>Upload your resume, code, or notes — get a direct link to share in the chat</p>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="document" accept=".pdf,.doc,.docx,.txt,.py,.java,.js" required>
+                    <button type="submit" class="upload-btn">Generate Share Link</button>
+                </form>
+
+                {% if shared_file_data %}
+                    <div class="share-link">
+                        <strong>Direct Download Link Ready!</strong><br><br>
+                        <input type="text" value="{{ shared_file_data }}" readonly
+                            style="width: 100%; padding: 15px; border-radius: 10px; background: white;">
+                        <p style="margin-top: 15px;">
+                            Copy the link → Paste in chat → Mentor downloads instantly!
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Schedule Request (For Student) -->
+            <div class="document-section" style="background: #fff8e1; border-color: #FFC72C;">
+                <h3>Request Interview Schedule</h3>
+                <p>Propose a date and time</p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="datetime-local" name="requested_date" required>
+                    <textarea name="message" placeholder="Optional: topics to cover, etc." rows="3"></textarea>
+                    <button type="submit" name="schedule_request" class="upload-btn">
+                        Send Request
+                    </button>
+                </form>
+
+                {% if request_success %}
+                    <div style="margin: 20px; padding: 15px; background: #d4edda; border-radius: 15px; color: #155724;">
+                        <strong>Request sent!</strong> Mentor will be notified.
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
 
         <br><br>
         <a href="{% url 'landing' %}" class="back-btn">← Back to Home</a>

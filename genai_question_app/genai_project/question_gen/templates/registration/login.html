@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - InterviewPrep Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 2.8em;
+            color: #800000;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            font-size: 1.2em;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.4em;
+            background: #860707;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 10px;
+        }
+
+        button:hover {
+            background: #FFC72C;
+            color: #860707;
+        }
+
+        .register-link {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        .register-link a {
+            color: #860707;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .messages {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Login</h1>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="messages">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <!-- This hidden field captures where the user was going -->
+            <input type="hidden" name="next" value="{{ next|default:'/' }}">
+
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="register-link">
+            New here? <a href="{% url 'register' %}">Create an account</a>
+        </div>
+        <a href="{% url 'landing' %}">
+            <button style="background: #6c757d;">Back to Home</button>
+        </a>
+    </div>
+</body>
+
+</html>

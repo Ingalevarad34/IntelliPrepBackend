@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Start Virtual Interview</title>
+    <title>Schedule Virtual Interview - InterviewPrep Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -11,7 +12,7 @@
             color: white;
             margin: 0;
             padding: 0;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,62 +20,126 @@
         }
         .container {
             background: rgba(255, 255, 255, 0.15);
-            padding: 40px 60px;
+            padding: 50px 70px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
         }
         h1 {
-            font-size: 2.5em;
+            font-size: 3em;
             margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
         }
         p {
-            font-size: 1.2em;
-            margin-bottom: 30px;
+            font-size: 1.3em;
+            margin-bottom: 40px;
             opacity: 0.9;
         }
-        input[type="text"] {
-            width: 80%;
-            padding: 15px;
-            font-size: 16px;
+        input[type="text"],
+        input[type="datetime-local"] {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.3em;
             border: none;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+        input[type="datetime-local"] {
+            font-family: inherit;
+        }
+        .btn-group {
+            margin-top: 30px;
         }
         button {
-            padding: 15px 40px;
-            font-size: 18px;
+            padding: 18px 50px;
+            font-size: 1.6em;
             background: #4CAF50;
             color: white;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s;
+            margin: 0 15px;
         }
         button:hover {
             background: #45a049;
             transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(76,175,80,0.4);
         }
         .back {
             background: #95a5a6;
-            margin-left: 10px;
+        }
+        .back:hover {
+            background: #7f8c8d;
+        }
+        .success-message {
+            margin: 30px 0;
+            padding: 25px;
+            background: rgba(76, 175, 80, 0.2);
+            border-radius: 15px;
+            border: 2px solid #4CAF50;
+            font-size: 1.3em;
+        }
+        .meet-link {
+            background: white;
+            color: #800000;
+            padding: 15px;
+            border-radius: 10px;
+            word-break: break-all;
+            margin: 20px 0;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Start Virtual Interview</h1>
-        <p>Generate a Google Meet link instantly — no login required!</p>
+        <h1>Schedule Virtual Interview</h1>
+        <p>Set a title and exact date/time for your mock interview session</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="success-message">
+                    {{ message }}
+                    {% if meet_link %}
+                        <div class="meet-link">
+                            <strong>Your Scheduled Meet Link:</strong><br>
+                            <a href="{{ meet_link }}" target="_blank" style="color: #4CAF50; text-decoration: none;">
+                                {{ meet_link }}
+                            </a>
+                        </div>
+                        <p>Copy and share this link with the participant!</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
+
         <form method="post">
             {% csrf_token %}
-            <input type="text" name="title" placeholder="Meet Title (e.g., Interview with Varad)" 
-                   value="IntelliPrep Virtual Interview" required>
-            <br>
-            <button type="submit">Create Meet Link Now</button>
-            <a href="{% url 'landing' %}">
-                <button type="button" class="back">Back to Home</button>
-            </a>
+            
+            <input type="text" 
+                   name="title" 
+                   placeholder="Meet Title (e.g., Mock Interview with Aman - System Design)" 
+                   value="IntelliPrep Mock Interview" 
+                   required>
+
+            <input type="datetime-local" 
+                   name="scheduled_time" 
+                   required 
+                   min="{% now 'Y-m-d\\TH:i' %}">
+
+            <div class="btn-group">
+                <button type="submit">
+                    Generate Scheduled Meet
+                </button>
+                <a href="{% url 'landing' %}">
+                    <button type="button" class="back">
+                        Back to Dashboard
+                    </button>
+                </a>
+            </div>
         </form>
     </div>
 </body>

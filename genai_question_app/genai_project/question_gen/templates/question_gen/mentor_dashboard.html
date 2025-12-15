@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Dashboard - InterviewPrep Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            max-width: 1000px;
+            margin: 40px auto;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #800000;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .welcome {
+            text-align: center;
+            font-size: 1.6em;
+            color: #4CAF50;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 15px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 6px solid #FFC72C;
+        }
+
+        .info-box h3 {
+            color: #800000;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box p {
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .availability {
+            background: #e8f5e8;
+            border-left-color: #4CAF50;
+        }
+
+        .chat-list {
+            background: #f0f8ff;
+            border-left-color: #2196F3;
+        }
+
+        .chat-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .chat-item a {
+            background: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .chat-item a:hover {
+            background: #1976D2;
+        }
+
+        .btn-group {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .btn {
+            padding: 18px 50px;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 0 20px;
+            transition: all 0.3s;
+        }
+
+        .quiz-btn { background: #007bff; color: white; }
+        .quiz-btn:hover { background: #0056b3; transform: scale(1.05); }
+
+        .meet-btn { background: #4CAF50; color: white; }
+        .meet-btn:hover { background: #45a049; transform: scale(1.05); }
+
+        .logout-btn { background: #6c757d; color: white; }
+        .logout-btn:hover { background: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mentor Dashboard</h1>
+        <div class="welcome">
+            <i class="fas fa-user-graduate"></i> Welcome back, <strong>{{ user.username }}</strong>!<br>
+            You're logged in as an <strong>Interviewer/Mentor</strong>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="info-box availability">
+                <h3><i class="fas fa-clock"></i> Availability Message</h3>
+                <p>"I'm available for mock interviews on System Design, Java, and Microservices. Feel free to book a session!"</p>
+            </div>
+
+            <div class="info-box">
+                <h3><i class="fas fa-briefcase"></i> Your Stats</h3>
+                <p>
+                    <strong>Package:</strong> {{ user.package|default:"Not set" }}<br>
+                    <strong>Company:</strong> {{ user.company|default:"Not set" }}<br>
+                    <strong>Role:</strong> {{ user.role|default:"Not set" }}
+                </p>
+            </div>
+
+            <div class="info-box">
+                <h3><i class="fas fa-lightbulb"></i> Skills & Expertise</h3>
+                <p>{{ user.skills|default:"Java, System Design, Leadership, DSA" }}</p>
+            </div>
+
+            <div class="info-box">
+                <h3><i class="fas fa-quote-left"></i> Bio</h3>
+                <p>{{ user.bio|default:"Passionate mentor helping students crack high-package jobs at top tech companies." }}</p>
+            </div>
+        </div>
+
+        <!-- Pending Interview Requests -->
+        <div class="info-box" style="background: #fff3e0; border-left-color: #FF9800; grid-column: span 2;">
+            <h3><i class="fas fa-calendar-alt"></i> Pending Interview Requests</h3>
+            {% if pending_requests %}
+                {% for req in pending_requests %}
+                    <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 10px;">
+                        <strong>From:</strong> {{ req.student.username }}<br>
+                        <strong>Requested:</strong> {{ req.requested_date|date:"M d, Y h:i A" }}<br>
+                        <strong>Message:</strong> {{ req.message|default:"No message" }}<br>
+                        <a href="{% url 'accept_request' req.id %}">
+                            <button style="background:#4CAF50;color:white;padding:8px 15px;margin:5px;border:none;border-radius:20px;">Accept</button>
+                        </a>
+                        <a href="{% url 'reject_request' req.id %}">
+                            <button style="background:#f44336;color:white;padding:8px 15px;margin:5px;border:none;border-radius:20px;">Reject</button>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No pending requests at the moment.</p>
+            {% endif %}
+        </div>
+
+        <!-- Active Chats Section -->
+        <div class="info-box chat-list" style="grid-column: span 2;">
+            <h3><i class="fas fa-comments"></i> Active Chats</h3>
+            {% if active_chats %}
+                {% for student in active_chats %}
+                    <div class="chat-item">
+                        <div>
+                            <strong>{{ student.username }}</strong><br>
+                            <small>Last message: {{ student.last_message_time|date:"M d, h:i A" }}</small>
+                        </div>
+                        <a href="{% url 'chat' student.id %}">Open Chat</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No active chats yet. Students will appear here when they message you.</p>
+            {% endif %}
+        </div>
+
+        <div class="btn-group">
+            <a href="{% url 'select_topic' %}">
+                <button class="btn quiz-btn">
+                    Practice Quiz (Mentor Mode)
+                </button>
+            </a>
+            <a href="{% url 'start_manual_meet' %}">
+                <button class="btn meet-btn">
+                    Start Interview Session
+                </button>
+            </a>
+            <a href="{% url 'logout' %}">
+                <button class="btn logout-btn">
+                    Logout
+                </button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

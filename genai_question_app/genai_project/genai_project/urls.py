@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('question_gen.urls')),  # Route to app URLs
+    path('accounts/login/', auth_views.LoginView.as_view(), name='login'),  # Optional
+    path('', include('question_gen.urls')),
 ]

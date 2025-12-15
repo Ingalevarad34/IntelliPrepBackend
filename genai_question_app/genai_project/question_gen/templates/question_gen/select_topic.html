@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -133,16 +134,24 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Start Your Quiz</h1>
 
+        <!-- Show logged-in status -->
+        <div class="user-info">
+            <i class="fas fa-user-check"></i> Logged in as: <strong>{{ request.user.username }}</strong>
+            ({% if request.user.user_type == 'interviewer' %}Interviewer/Mentor{% else %}Student{% endif %})
+        </div>
+
+        <!-- Messages -->
         {% if messages %}
-            {% for message in messages %}
-                <div class="messages {{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
+        {% for message in messages %}
+        <div class="messages {{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
         {% endif %}
 
         <form method="post" enctype="multipart/form-data">
@@ -153,7 +162,7 @@
                 <div class="radio-group">
                     <label>
                         <input type="radio" name="topic" value="" checked>
-                        Use Predefined Topic (General)
+                        General Quiz
                     </label>
                     <label>
                         <input type="radio" name="topic" value="java">
@@ -171,7 +180,7 @@
             </div>
 
             <div class="option-group">
-                <div class="option-title">Option 2: Upload Document (PDF)</div>
+                <div class="option-title">Option 2: Upload Your Document (PDF)</div>
                 <div class="file-upload">
                     <label>
                         <input type="radio" name="topic" value="document">
@@ -183,15 +192,16 @@
 
             <div class="btn-group">
                 <button type="submit" class="btn start-btn">
-                    <i class="fas fa-play"></i> Start Quiz
+                    Start Quiz
                 </button>
-                <a href="{% url 'landing' %}">
-                    <button type="button" class="btn back-btn">
-                        <i class="fas fa-home"></i> Back to Home
+                <a href="{% url 'logout' %}">
+                    <button type="button" class="btn logout-btn">
+                        Logout
                     </button>
                 </a>
             </div>
         </form>
     </div>
 </body>
+
 </html>

@@ -147,3 +147,9 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
 # FIXED: Your Gemini API key (complete with placeholder; set real via env)
 # GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyAM_7wlv-yD176U5o7Wjm79Wks1yf7dXKo')
+
+AUTH_USER_MODEL = 'question_gen.User'
+
+# settings.py
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'landing'  # This is for direct /login access

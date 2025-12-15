@@ -738,49 +738,50 @@
     </section>
 
     <!-- Top Performers Section - ADD THIS AFTER Mock Interviews section -->
-    <section id="top-performers" class="top-performers">
+    <!-- Top Mentors Section -->
+    <section id="top-mentors" class="top-mentors">
         <div class="container">
-            <h2 class="section-title">Connect with Top Performers</h2>
-            <p class="section-subtitle">Learn from students who landed high-package jobs at top companies</p>
+            <h2 class="section-title">Connect with Top Mentors</h2>
+            <p class="section-subtitle">Learn from experienced interviewers who landed high-package jobs</p>
+
+            {% if mentors %}
             <div class="performers-grid">
-                <!-- User 1 -->
+                {% for mentor in mentors %}
                 <div class="performer-card">
-                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Aman Gupta" class="profile-img">
-                    <h3>Aman Gupta</h3>
-                    <p class="package">45 LPA</p>
-                    <p class="company">Google • Senior Software Engineer</p>
-                    <p class="bio">Ex-Amazon | Helped 200+ students crack FAANG</p>
-                    <a href="{% url 'user_profile' 1 %}">
-                        <button class="connect-btn">Connect & Chat</button>
+                    {% if mentor.profile_image %}
+                    <img src="{{ mentor.profile_image }}" alt="{{ mentor.username }}" class="profile-img">
+                    {% else %}
+                    <img src="https://randomuser.me/api/portraits/lego/{{ forloop.counter }}.jpg"
+                        alt="{{ mentor.username }}" class="profile-img">
+                    {% endif %}
+
+                    <h3>{{ mentor.username }}</h3>
+                    {% if mentor.package %}
+                    <p class="package">{{ mentor.package }}</p>
+                    {% endif %}
+                    {% if mentor.company or mentor.role %}
+                    <p class="company">
+                        {% if mentor.company %}{{ mentor.company }}{% endif %}
+                        {% if mentor.role %} • {{ mentor.role }}{% endif %}
+                    </p>
+                    {% endif %}
+                    {% if mentor.bio %}
+                    <p class="bio">{{ mentor.bio|truncatewords:20 }}</p>
+                    {% else %}
+                    <p class="bio">Experienced mentor ready to help you crack interviews!</p>
+                    {% endif %}
+
+                    <a href="{% url 'user_profile' mentor.id %}">
+                        <button class="connect-btn">View Profile & Chat</button>
                     </a>
                 </div>
-
-                <!-- User 2 -->
-                <div class="performer-card">
-                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Priya Sharma" class="profile-img">
-                    <h3>Priya Sharma</h3>
-                    <p class="package">52 LPA</p>
-                    <p class="company">Microsoft • Principal Engineer</p>
-                    <p class="bio">Mentored 150+ students to top tech roles</p>
-                    <a href="{% url 'user_profile' 2 %}">
-                        <button class="connect-btn">Connect & Chat</button>
-                    </a>
-                </div>
-
-                <!-- User 3 -->
-                <div class="performer-card">
-                    <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Rahul Verma" class="profile-img">
-                    <h3>Rahul Verma</h3>
-                    <p class="package">38 LPA</p>
-                    <p class="company">Atlassian • Staff Engineer</p>
-                    <p class="bio">Ex-Flipkart | DSA & System Design Expert</p>
-                    <a href="{% url 'user_profile' 3 %}">
-                        <button class="connect-btn">Connect & Chat</button>
-                    </a>
-                </div>
-
-                <!-- Add more users as needed -->
+                {% endfor %}
             </div>
+            {% else %}
+            <p style="text-align: center; font-size: 1.3em; color: #666;">
+                No mentors available yet. Be the first to register as an interviewer!
+            </p>
+            {% endif %}
         </div>
     </section>
 
