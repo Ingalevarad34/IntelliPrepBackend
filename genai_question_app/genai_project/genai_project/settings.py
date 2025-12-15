@@ -127,8 +127,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
+# This is where your static files are located (your folder)
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# This is where collectstatic will copy files to (required for production)
+STATIC_ROOT = BASE_DIR / "staticfiles"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -153,3 +160,6 @@ AUTH_USER_MODEL = 'question_gen.User'
 # settings.py
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'landing'  # This is for direct /login access
+
+TIME_ZONE = 'Asia/Kolkata'  # Change to your actual timezone
+USE_TZ = True

@@ -6,102 +6,189 @@
     <title>Chat with {{ other_user.username }} - InterviewPrep Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        * {
             margin: 0;
             padding: 0;
-            min-height: 100vh;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
         .container {
+            width: 100%;
+            max-width: 1000px;
+            height: 95vh;
             background: rgba(255, 255, 255, 0.95);
-            margin: 40px auto;
-            max-width: 900px;
             border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
             backdrop-filter: blur(10px);
         }
+
         .header {
             background: #800000;
             color: white;
             padding: 20px;
             text-align: center;
-            font-size: 1.8em;
+            font-size: 2em;
+            border-radius: 20px 20px 0 0;
         }
+
+        .header small {
+            display: block;
+            font-size: 0.6em;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
         .chat-box {
-            height: 600px;
+            flex: 1;
             overflow-y: auto;
             padding: 20px;
             background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
+
         .message {
-            margin: 15px 0;
-            padding: 15px;
-            border-radius: 15px;
             max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
             word-wrap: break-word;
+            align-self: flex-start;
+            position: relative;
         }
+
         .sent {
             background: #800000;
             color: white;
-            margin-left: auto;
+            align-self: flex-end;
             border-bottom-right-radius: 5px;
         }
+
         .received {
             background: #e9ecef;
             color: #333;
-            margin-right: auto;
+            align-self: flex-start;
             border-bottom-left-radius: 5px;
         }
+
+        .message strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
         .timestamp {
             font-size: 0.8em;
             opacity: 0.7;
-            margin-top: 5px;
+            margin-top: 8px;
+            text-align: right;
         }
+
         .input-area {
             display: flex;
             padding: 20px;
             background: white;
             border-top: 1px solid #ddd;
+            gap: 15px;
         }
+
         textarea {
             flex: 1;
-            padding: 15px;
+            padding: 18px;
             border: 2px solid #ddd;
-            border-radius: 15px;
+            border-radius: 20px;
             font-size: 1.2em;
             resize: none;
+            height: 80px;
+            font-family: inherit;
         }
+
+        textarea:focus {
+            outline: none;
+            border-color: #800000;
+        }
+
         button {
-            padding: 15px 30px;
-            margin-left: 10px;
+            padding: 18px 40px;
             background: #800000;
             color: white;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            font-size: 1.2em;
+            font-size: 1.3em;
+            transition: all 0.3s;
         }
+
         button:hover {
             background: #FFC72C;
             color: #800000;
+            transform: scale(1.05);
         }
+
         .start-meet-btn {
-            background: #4CAF50;
-            margin: 20px auto;
             display: block;
-            width: 80%;
+            width: 85%;
+            margin: 30px auto;
+            padding: 20px;
+            background: #ff9800;
             font-size: 1.6em;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 50px;
         }
+
+        .start-meet-btn:hover {
+            background: #45a049;
+            transform: scale(1.03);
+        }
+
         .back-btn {
             text-align: center;
-            margin: 20px;
+            margin: 20px 0;
         }
+
         .back-btn a {
             color: #800000;
             text-decoration: none;
             font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .back-btn a:hover {
+            text-decoration: underline;
+        }
+
+        /* Scrollbar styling */
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-box::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background: #800000;
+            border-radius: 10px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb:hover {
+            background: #a00000;
         }
     </style>
 </head>
@@ -110,9 +197,7 @@
         <div class="header">
             Chat with {{ other_user.username }}
             {% if other_user.user_type == 'interviewer' %}
-                <span style="font-size: 0.6em; display: block; margin-top: 10px;">
-                    Mentor • {{ other_user.package|default:"High Package" }}
-                </span>
+                <!-- <small>Mentor • {{ other_user.package|default:"High Package" }}</small> -->
             {% endif %}
         </div>
 
@@ -121,22 +206,22 @@
                 <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
                     <strong>{{ msg.sender.username }}</strong>
                     <div>{{ msg.message }}</div>
-                    <div class="timestamp">{{ msg.timestamp|date:"M d, h:i A" }}</div>
+                    <div class="timestamp">
+                        {{ msg.timestamp|date:"h:i A, M d" }}
+                    </div>
                 </div>
             {% endfor %}
         </div>
 
         <form method="post" class="input-area">
             {% csrf_token %}
-            <textarea name="message" rows="3" placeholder="Type your message..." required></textarea>
+            <textarea name="message" placeholder="Type your message here..." required></textarea>
             <button type="submit">Send</button>
         </form>
 
         {% if request.user.user_type == 'interviewer' %}
-            <a href="{% url 'start_manual_meet' %}">
-                <button class="start-meet-btn">
-                    <i class="fas fa-video"></i> Start Virtual Interview Meet
-                </button>
+            <a href="{% url 'start_manual_meet' %}" class="start-meet-btn">
+                <i class="fas fa-video" style="color: white;"></i> <span style="color: white;">Launch Virtual Interview Meet</span>
             </a>
         {% endif %}
 
@@ -144,5 +229,11 @@
             <a href="{% url 'landing' %}">← Back to Dashboard</a>
         </div>
     </div>
+
+    <!-- Auto-scroll to bottom on load -->
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    </script>
 </body>
 </html>

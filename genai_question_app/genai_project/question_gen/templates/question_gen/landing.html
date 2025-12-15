@@ -14,6 +14,10 @@
             box-sizing: border-box;
         }
 
+        a {
+            color: white;
+        }
+
         html,
         body {
             width: 100%;
@@ -596,6 +600,7 @@
 </head>
 
 <body>
+    {% load static %}
     <!-- Navigation Drawer -->
     <div id="drawer" class="drawer">
         <button class="close-btn" onclick="toggleDrawer()">
@@ -606,7 +611,7 @@
             <nav>
                 <a href="#home" onclick="toggleDrawer()">Home</a>
                 <a href="{% url 'select_topic' %}" onclick="toggleDrawer()">Start Quiz</a>
-                <a href="{% url 'start_manual_meet' %}" onclick="toggleDrawer()">Virtual Interview</a>
+                <a href="#resources" onclick="toggleDrawer()">Download Notes</a>
                 <a href="#contact" onclick="toggleDrawer()">Contact</a>
             </nav>
         </div>
@@ -625,7 +630,7 @@
             <nav class="desktop-nav">
                 <a href="#home">Home</a>
                 <a href="{% url 'select_topic' %}">Start Quiz</a>
-                <a href="{% url 'start_manual_meet' %}">Virtual Interview</a>
+                <a href="#resources">Download Notes</a>
                 <a href="#contact">Contact</a>
             </nav>
         </div>
@@ -642,7 +647,7 @@
                     <button class="cta-btn">Start AI Quiz</button>
                 </a>
                 <a href="{% url 'start_manual_meet' %}" style="margin-left: 20px;">
-                    <button class="cta-btn" style="background: #4CAF50;">Start Virtual Interview</button>
+                    <!-- <button class="cta-btn" style="background: #4CAF50;">Start Virtual Interview</button> -->
                 </a>
             </div>
             <div class="hero-image">
@@ -683,53 +688,63 @@
         </div>
     </section>
 
-    <!-- Mock Interview Cards -->
-    <section id="features" class="mock-interviews">
+    <!-- Download Interview Notes & Resources -->
+    <section id="resources" class="resources-section">
         <div class="container">
-            <h2 class="section-title">Start Mock Interviews</h2>
-            <p class="section-subtitle">Practice different types of interviews</p>
+            <h2 class="section-title">Download Interview Notes & Guides</h2>
+            <p class="section-subtitle">Get prepared with expert-curated resources and cheat sheets</p>
             <div class="interview-cards">
                 <div class="interview-card">
                     <img src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="Technical" />
+                        alt="Technical Notes" />
                     <div class="card-content">
-                        <h3>Technical Interview</h3>
-                        <p>Coding & system design practice</p>
-                        <a href="{% url 'start_manual_meet' %}">
-                            <button class="schedule-btn">Start Now</button>
+                        <h3>Technical Interview Notes</h3>
+                        <p>DSA, System Design, OOP concepts, common coding patterns</p>
+                        <a href="/static/notes/Basic Javascript.pdf" download>
+                            <button class="schedule-btn">
+                                <i class="fas fa-download"></i> Download PDF
+                            </button>
                         </a>
                     </div>
                 </div>
+
                 <div class="interview-card">
                     <img src="https://images.pexels.com/photos/7688460/pexels-photo-7688460.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="Behavioral" />
+                        alt="Behavioral Notes" />
                     <div class="card-content">
-                        <h3>Behavioral Interview</h3>
-                        <p>STAR method & storytelling</p>
-                        <a href="{% url 'start_manual_meet' %}">
-                            <button class="schedule-btn">Start Now</button>
+                        <h3>Behavioral Interview Guide</h3>
+                        <p>STAR method examples, leadership principles, common questions</p>
+                        <a href="/static/notes/behavioral_interview_guide.pdf" download>
+                            <button class="schedule-btn">
+                                <i class="fas fa-download"></i> Download PDF
+                            </button>
                         </a>
                     </div>
                 </div>
+
                 <div class="interview-card">
                     <img src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="HR" />
+                        alt="HR Notes" />
                     <div class="card-content">
-                        <h3>HR Interview</h3>
-                        <p>Salary negotiation & culture fit</p>
-                        <a href="{% url 'start_manual_meet' %}">
-                            <button class="schedule-btn">Start Now</button>
+                        <h3>HR Interview Cheat Sheet</h3>
+                        <p>Salary negotiation tips, culture fit questions, resume red flags</p>
+                        <a href="/static/notes/hr_interview_guide.pdf" download>
+                            <button class="schedule-btn">
+                                <i class="fas fa-download"></i> Download PDF
+                            </button>
                         </a>
                     </div>
                 </div>
                 <div class="interview-card">
                     <img src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="Group" />
+                        alt="Group Discussion" />
                     <div class="card-content">
-                        <h3>Group Discussion</h3>
-                        <p>Practice with peers</p>
-                        <a href="{% url 'start_manual_meet' %}">
-                            <button class="schedule-btn">Start Now</button>
+                        <h3>Group Discussion Tips</h3>
+                        <p>How to stand out in GD, leadership in group settings</p>
+                        <a href="/static/notes/group_discussion_guide.pdf" download>
+                            <button class="schedule-btn">
+                                <i class="fas fa-download"></i> Download PDF
+                            </button>
                         </a>
                     </div>
                 </div>
@@ -790,7 +805,9 @@
         <div class="container">
             <h2 class="section-title">Success Stories & Motivation</h2>
             <p class="section-subtitle">Get inspired by success stories and motivational content</p>
+
             <div class="gallery-slider">
+                <!-- Slide 1 -->
                 <div class="slide active">
                     <img src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800"
                         alt="Success Story" />
@@ -799,6 +816,8 @@
                         <p>Success comes to those who prepare diligently</p>
                     </div>
                 </div>
+
+                <!-- Slide 2 -->
                 <div class="slide">
                     <img src="https://images.pexels.com/photos/1438072/pexels-photo-1438072.jpeg?auto=compress&cs=tinysrgb&w=800"
                         alt="Motivation" />
@@ -807,6 +826,8 @@
                         <p>Passion drives excellence</p>
                     </div>
                 </div>
+
+                <!-- Slide 3 -->
                 <div class="slide">
                     <img src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800"
                         alt="Achievement" />
@@ -815,6 +836,8 @@
                         <p>Keep pushing forward with determination</p>
                     </div>
                 </div>
+
+                <!-- Slide 4 -->
                 <div class="slide">
                     <img src="https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=800"
                         alt="Teamwork" />
@@ -824,14 +847,169 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Navigation Arrows -->
+            <!-- <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+            <a class="next" onclick="plusSlides(1)">&#10095;</a> -->
+
+            <!-- Dots -->
             <div class="slider-dots">
-                <span class="dot active" onclick="currentSlide(0)"></span>
-                <span class="dot" onclick="currentSlide(1)"></span>
+                <span class="dot active" onclick="currentSlide(1)"></span>
                 <span class="dot" onclick="currentSlide(2)"></span>
                 <span class="dot" onclick="currentSlide(3)"></span>
+                <span class="dot" onclick="currentSlide(4)"></span>
             </div>
         </div>
     </section>
+
+    <style>
+        .gallery {
+            padding: 4rem 0;
+            background: var(--light-gray);
+        }
+
+        .gallery-slider {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            height: 500px;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px var(--shadow);
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .slide-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(128, 0, 0, 0.95), transparent);
+            color: #fff;
+            padding: 40px 30px 30px;
+            text-align: center;
+        }
+
+        .slide-overlay h3 {
+            font-size: 2em;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .slide-overlay p {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+
+        /* Navigation Arrows */
+        .prev,
+        .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 20px;
+            margin-top: -30px;
+            color: white;
+            font-weight: bold;
+            font-size: 3em;
+            transition: 0.3s;
+            user-select: none;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+        }
+
+        .next {
+            right: 20px;
+        }
+
+        .prev {
+            left: 20px;
+        }
+
+        .prev:hover,
+        .next:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        /* Dots */
+        .slider-dots {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .dot {
+            cursor: pointer;
+            height: 15px;
+            width: 15px;
+            margin: 0 8px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+
+        .dot.active,
+        .dot:hover {
+            background-color: var(--primary);
+        }
+    </style>
+
+    <script>
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let i;
+            const slides = document.getElementsByClassName("slide");
+            const dots = document.getElementsByClassName("dot");
+
+            if (n > slides.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = slides.length }
+
+            for (i = 0; i < slides.length; i++) {
+                slides[i].classList.remove("active");
+            }
+
+            for (i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+
+            slides[slideIndex - 1].classList.add("active");
+            dots[slideIndex - 1].className += " active";
+        }
+
+        // Optional: Auto-slide every 6 seconds
+        setInterval(() => {
+            plusSlides(1);
+        }, 6000);
+    </script>
 
     <!-- Contact Section -->
     <section id="contact" class="contact">
@@ -844,21 +1022,21 @@
                         <i class="fas fa-envelope"></i>
                         <div>
                             <h4>Email</h4>
-                            <p>support@interviewpreppro.com</p>
+                            <p> admissions@dypdpu.edu.in</p>
                         </div>
                     </div>
                     <div class="info-item">
                         <i class="fas fa-phone"></i>
                         <div>
                             <h4>Phone</h4>
-                            <p>+1 (555) 123-4567</p>
+                            <p>020-27805292</p>
                         </div>
                     </div>
                     <div class="info-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
                             <h4>Address</h4>
-                            <p>123 Learning Street, Education City, EC 12345</p>
+                            <p>Sant Tukaram Nagar, Pimpri, Pune - 411018, Maharashtra, India</p>
                         </div>
                     </div>
                 </div>
@@ -908,9 +1086,11 @@
                 <div class="footer-section">
                     <h4>Contact</h4>
                     <ul>
-                        <li><i class="fas fa-envelope"></i> support@interviewpreppro.com</li>
-                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
-                        <li><i class="fas fa-map-marker-alt"></i> Education City, EC 12345</li>
+                        <li><i class="fas fa-envelope"></i><a href="mailto:admissions@dypdpu.edu.in">
+                                admissions@dypdpu.edu.in</a></li>
+                        <li><i class="fas fa-phone"></i>020-27805292</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Sant Tukaram Nagar, Pimpri, Pune - 411018,
+                            Maharashtra, India</li>
                     </ul>
                 </div>
             </div>

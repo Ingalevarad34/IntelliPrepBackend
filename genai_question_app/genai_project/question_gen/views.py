@@ -1,61 +1,27 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.conf import settings
-from .models import User  # Make sure you import your custom User model
+from django.db import models
+
 import google.generativeai as genai
 import re
 import PyPDF2
-from django.db import models
-from .models import User, InterviewRequest, ChatMessage
 from io import BytesIO
 import urllib.parse
 import base64
-from .models import User, InterviewRequest
-from django.shortcuts import render, redirect, get_object_or_404
-# Import your custom User model
-from .models import User
 from datetime import datetime
-import urllib.parse
+
+# Import models
+from .models import User, InterviewRequest, ChatMessage
 
 # Configure Gemini
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
-# ==================== MOCK DATA (Replace with DB later) ====================
-HIGH_PACKAGE_USERS = [
-    {
-        'id': 1,
-        'name': 'Aman Gupta',
-        'package': '45 LPA',
-        'company': 'Google',
-        'role': 'Senior Software Engineer',
-        'skills': 'System Design, Java, Microservices',
-        'bio': 'Ex-Amazon, helped 200+ students crack FAANG interviews',
-        'image': 'https://randomuser.me/api/portraits/men/32.jpg'
-    },
-    {
-        'id': 2,
-        'name': 'Priya Sharma',
-        'package': '52 LPA',
-        'company': 'Microsoft',
-        'role': 'Principal Engineer',
-        'skills': 'React, TypeScript, Cloud Architecture',
-        'bio': 'Mentored 150+ students to top tech roles',
-        'image': 'https://randomuser.me/api/portraits/women/44.jpg'
-    },
-    {
-        'id': 3,
-        'name': 'Rahul Verma',
-        'package': '38 LPA',
-        'company': 'Atlassian',
-        'role': 'Staff Engineer',
-        'skills': 'Backend, Distributed Systems, Leadership',
-        'bio': 'Ex-Flipkart, passionate about teaching DSA',
-        'image': 'https://randomuser.me/api/portraits/men/45.jpg'
-    },
-]
+# Current stable model (December 2025)
+GEMINI_MODEL = 'gemini-2.5-flash-lite'
 
 # ==================== AUTH VIEWS ====================
 def register(request):
@@ -74,7 +40,6 @@ def register(request):
             messages.error(request, "Username already taken")
             return redirect('register')
 
-        # Create user
         user = User.objects.create_user(
             username=username,
             email=email,
@@ -82,7 +47,6 @@ def register(request):
             user_type=user_type
         )
 
-        # Save extra fields only if interviewer
         if user_type == 'interviewer':
             user.package = request.POST.get('package', '')
             user.company = request.POST.get('company', '')
@@ -93,73 +57,57 @@ def register(request):
 
         user.save()
         login(request, user)
-        messages.success(request, f"Welcome {username}! Your account has been created.")
+        messages.success(request, f"Welcome {username}! Account created.")
         return redirect('landing')
 
     return render(request, 'registration/register.html')
 
 def user_login(request):
-    # Get the 'next' parameter from GET (when redirected by @login_required)
     next_page = request.GET.get('next')
 
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
-        if user is not None:
+        if user:
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}!")
-
-            # Use the 'next' from POST (hidden field) or GET
             redirect_to = request.POST.get('next') or request.GET.get('next') or 'landing'
             return redirect(redirect_to)
-        else:
-            messages.error(request, "Invalid username or password")
+        messages.error(request, "Invalid credentials")
 
     return render(request, 'registration/login.html', {'next': next_page})
-    
+
 @login_required
 def user_logout(request):
     logout(request)
-    messages.success(request, "You have been logged out successfully.")
+    messages.success(request, "Logged out successfully.")
     return redirect('landing')
 
 # ==================== MAIN VIEWS ====================
 @login_required
 def landing(request):
-    user = request.user
-
-    if user.user_type == 'interviewer':
-        pending_requests = InterviewRequest.objects.filter(interviewer=user, status='pending').order_by('requested_date')
-
-        # Get all students who have messaged this interviewer
-        active_students = User.objects.filter(
-            sent_messages__receiver=user
-        ).annotate(
-            last_message_time=models.Max('sent_messages__timestamp')
-        ).order_by('-last_message_time')
-
+    if request.user.user_type == 'interviewer':
+        pending_requests = InterviewRequest.objects.filter(interviewer=request.user, status='pending')
+        active_students = User.objects.filter(sent_messages__receiver=request.user).distinct()
         return render(request, 'question_gen/mentor_dashboard.html', {
             'pending_requests': pending_requests,
             'active_chats': active_students
         })
     
-    if user.user_type == 'admin':
+    if request.user.user_type == 'admin':
         return redirect('admin:index')
     
-    # Students
     mentors = User.objects.filter(user_type='interviewer').order_by('-date_joined')[:6]
     return render(request, 'question_gen/landing.html', {'mentors': mentors})
 
 @login_required
 def select_topic(request):
-    """Topic selection + file upload. Summarize file if uploaded, start quiz."""
     if request.method == 'POST':
         topic = request.POST.get('topic', '').strip()
         document_file = request.FILES.get('document')
         summary = ''
 
-        # Handle PDF upload
         if document_file:
             try:
                 pdf_reader = PyPDF2.PdfReader(BytesIO(document_file.read()))
@@ -168,39 +116,31 @@ def select_topic(request):
                     page_text = page.extract_text()
                     text += (page_text or '') + '\n'
 
-                model = genai.GenerativeModel('gemini-2.5-flash')
-                sum_prompt = f"Summarize the key points from this document in a clear, structured way (focus on {topic} if specified): {text[:4000]}"
-                sum_response = model.generate_content(sum_prompt)
-                summary = sum_response.text.strip()
-
-                messages.success(request, "Document uploaded and summarized successfully!")
+                model = genai.GenerativeModel(GEMINI_MODEL)
+                sum_prompt = f"Summarize key points clearly (focus on {topic} if relevant): {text[:4000]}"
+                summary = model.generate_content(sum_prompt).text.strip()
+                messages.success(request, "Document summarized!")
             except Exception as e:
-                messages.error(request, f"Error processing PDF: {str(e)}")
+                messages.error(request, f"PDF error: {str(e)}")
                 return render(request, 'question_gen/select_topic.html')
 
-        # Validate predefined topic
         if not document_file and topic not in ['java', 'javascript', 'reactjs']:
-            messages.error(request, "Please select a valid topic or upload a PDF.")
+            messages.error(request, "Select valid topic or upload PDF.")
             return render(request, 'question_gen/select_topic.html')
 
-        # Generate first question
         try:
-            model = genai.GenerativeModel('gemini-2.5-flash')
+            model = genai.GenerativeModel(GEMINI_MODEL)
             base_context = f"Document summary: {summary}. " if summary else ''
             prompt = (
-                f"You are a friendly and expert quiz master. "
-                f"Topic: {topic or 'Custom Document from uploaded PDF'}. "
-                f"{base_context}"
-                "Create an engaging opening question for a beginner. "
-                "Start with a short, warm compliment like 'Great choice!' or 'Welcome!', then ask the question. "
-                "Keep it concise and exciting."
+                f"You are a friendly quiz master. "
+                f"Topic: {topic or 'Custom Document'}. {base_context}"
+                "Create engaging beginner question. Start with warm compliment, then question. Keep concise."
             )
             response = model.generate_content(prompt)
             full_text = response.text.strip()
 
             compliment, question = parse_response(full_text)
 
-            # Initialize session
             request.session['history'] = []
             request.session['step'] = 1
             request.session['nest_level'] = 0
@@ -214,12 +154,13 @@ def select_topic(request):
             return redirect('quiz_view', topic=url_topic)
 
         except Exception as e:
-            messages.error(request, f"Error generating quiz: {str(e)}")
+            messages.error(request, f"Quiz generation error: {str(e)}")
             return render(request, 'question_gen/select_topic.html')
 
-    # GET request - show form
     return render(request, 'question_gen/select_topic.html')
+
 def parse_response(full_text):
+    # Your existing parse_response function (keep as is)
     full_lower = full_text.lower()
     if 'now,' in full_lower:
         split_idx = full_lower.find('now,')
@@ -244,6 +185,8 @@ def parse_response(full_text):
 
     question = re.sub(r'`history:`', 'Based on our discussion:', question)
     return compliment, question
+
+
 
 @login_required
 def quiz_view(request, topic):
@@ -282,7 +225,7 @@ def quiz_view(request, topic):
             return redirect('quiz_view', topic=topic)
 
         try:
-            model = genai.GenerativeModel('gemini-2.5-flash')
+            model = genai.GenerativeModel('gemini-2.5-flash-lite')
             base_context = f"Document summary: {summary}. " if summary else ''
             context = base_context + '\n'.join([f"Q: {h['question']} A: {h['user_answer']}" for h in history[-3:]])
 
@@ -477,6 +420,7 @@ def chat_view(request, user_id):
                 sender=request.user,
                 receiver=other_user,
                 message=message_text
+            # Do NOT set timestamp here — let default=timezone.now handle it
             )
             messages.success(request, "Message sent!")
 
