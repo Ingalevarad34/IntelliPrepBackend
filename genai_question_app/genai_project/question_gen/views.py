@@ -5,11 +5,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.conf import settings
 from django.db import models
-
+import razorpay
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 import google.generativeai as genai
 import re
 import PyPDF2
 from io import BytesIO
+from .models import ContactMessage
 import urllib.parse
 import base64
 from datetime import datetime
@@ -19,7 +22,7 @@ from .models import User, InterviewRequest, ChatMessage
 
 # Configure Gemini
 genai.configure(api_key=settings.GEMINI_API_KEY)
-
+client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 # Current stable model (December 2025)
 GEMINI_MODEL = 'gemini-2.5-flash-lite'
 
@@ -87,20 +90,44 @@ def user_logout(request):
 # ==================== MAIN VIEWS ====================
 @login_required
 def landing(request):
-    if request.user.user_type == 'interviewer':
-        pending_requests = InterviewRequest.objects.filter(interviewer=request.user, status='pending')
-        active_students = User.objects.filter(sent_messages__receiver=request.user).distinct()
+    user = request.user
+
+    # Admin → redirect to admin panel
+    if user.user_type == 'admin':
+        return redirect('admin:index')
+
+    # Interviewer / Mentor Dashboard
+    if user.user_type == 'interviewer':
+        # Pending requests
+        pending_requests = InterviewRequest.objects.filter(
+            interviewer=user, 
+            status='pending'
+        ).order_by('requested_date')
+
+        # All requests (for calendar drawer)
+        all_requests = InterviewRequest.objects.filter(
+            interviewer=user
+        ).order_by('-requested_date')
+
+        # Active chats: students who have messaged this interviewer
+        active_students = User.objects.filter(
+            sent_messages__receiver=user
+        ).annotate(
+            last_message_time=models.Max('sent_messages__timestamp')
+        ).order_by('-last_message_time')
+
         return render(request, 'question_gen/mentor_dashboard.html', {
             'pending_requests': pending_requests,
-            'active_chats': active_students
+            'all_requests': all_requests,        # For calendar drawer
+            'active_chats': active_students,     # With last message time
         })
-    
-    if request.user.user_type == 'admin':
-        return redirect('admin:index')
-    
-    mentors = User.objects.filter(user_type='interviewer').order_by('-date_joined')[:6]
-    return render(request, 'question_gen/landing.html', {'mentors': mentors})
 
+    # Student Landing Page (default)
+    mentors = User.objects.filter(user_type='interviewer').order_by('-date_joined')[:6]
+    
+    return render(request, 'question_gen/landing.html', {
+        'mentors': mentors
+    })
 @login_required
 def select_topic(request):
     if request.method == 'POST':
@@ -434,3 +461,21 @@ def chat_view(request, user_id):
         'other_user': other_user,
         'messages': chat_history
     })
+
+@login_required  # or not, if contact is public
+def contact_request(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+
+        ContactMessage.objects.create(
+            name=name,
+            email=email,
+            message=message
+        )
+        messages.success(request, "Thank you! Your message has been sent successfully. We'll get back to you soon.")
+        
+        return redirect('landing')  # ← FIXED: redirect to landing page
+
+    return redirect('landing')  # If GET request, just go to landing

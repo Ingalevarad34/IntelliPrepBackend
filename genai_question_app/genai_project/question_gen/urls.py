@@ -22,4 +22,7 @@ urlpatterns = [
     # Interview Request Actions
     path('accept-request/<int:request_id>/', views.accept_request, name='accept_request'),
     path('reject-request/<int:request_id>/', views.reject_request, name='reject_request'),
+
+    #Contact
+    path('contact/', views.contact_request, name='contact'),
 ]

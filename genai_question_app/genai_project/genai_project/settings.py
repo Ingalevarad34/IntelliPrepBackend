@@ -12,9 +12,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-import tempfile  # FIXED: Import early
+import tempfile  
 from dotenv import load_dotenv
-load_dotenv()  # At top, after imports
+load_dotenv() 
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 
 
@@ -24,7 +24,6 @@ GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:8000/ca
 
 
 
-# FIXED: Define BASE_DIR early (before any references)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
@@ -70,7 +69,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',  # FIXED: Added for DEBUG=True
+                'django.template.context_processors.debug', 
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -163,3 +162,6 @@ LOGIN_REDIRECT_URL = 'landing'  # This is for direct /login access
 
 TIME_ZONE = 'Asia/Kolkata'  # Change to your actual timezone
 USE_TZ = True
+
+RAZORPAY_KEY_ID = 'your_key_id'
+RAZORPAY_KEY_SECRET = 'your_key_secret'

@@ -20,9 +20,10 @@
             padding: 50px;
             border-radius: 20px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 40px auto;
             backdrop-filter: blur(10px);
+            position: relative;
         }
 
         h1 {
@@ -76,34 +77,111 @@
             border-left-color: #4CAF50;
         }
 
-        .chat-list {
+        .chat-list, .schedule-box {
             background: #f0f8ff;
             border-left-color: #2196F3;
         }
 
-        .chat-item {
+        .chat-item, .request-item {
             background: white;
             padding: 15px;
-            margin: 10px 0;
-            border-radius: 10px;
+            margin: 12px 0;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
 
-        .chat-item a {
+        .chat-item a, .request-item button {
             background: #2196F3;
             color: white;
             padding: 10px 20px;
             border-radius: 30px;
             text-decoration: none;
             font-weight: bold;
+            transition: 0.3s;
         }
 
-        .chat-item a:hover {
+        .chat-item a:hover, .request-item button:hover {
             background: #1976D2;
+            transform: scale(1.05);
         }
+
+        /* Calendar Drawer */
+        .calendar-toggle {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            background: #FFC72C;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8em;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .calendar-toggle:hover {
+            color: #800000;
+            transform: scale(1.1);
+        }
+
+        .calendar-drawer {
+            position: fixed;
+            right: -480px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.3);
+            padding: 30px;
+            overflow-y: auto;
+            transition: right 0.4s ease;
+            z-index: 999;
+            backdrop-filter: blur(10px);
+        }
+
+        .calendar-drawer.open {
+            right: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #800000;
+        }
+
+        .drawer-header h2 {
+            color: #800000;
+            font-size: 2em;
+        }
+
+        .close-drawer {
+            font-size: 2em;
+            cursor: pointer;
+            color: #800000;
+        }
+
+        .request-item .status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status.pending { background: #fff3cd; color: #856404; }
+        .status.accepted { background: #d4edda; color: #155724; }
+        .status.rejected { background: #f8d7da; color: #721c24; }
 
         .btn-group {
             text-align: center;
@@ -121,13 +199,18 @@
         }
 
         .quiz-btn { background: #800000; color: white; }
-        .quiz-btn:hover { background: #FFC72C; transform: scale(1.05); }
+        .quiz-btn:hover { background: #FFC72C; color: #800000; transform: scale(1.05); }
 
-        .meet-btn { background: #FFC72C; color: white; }
-        .meet-btn:hover { background: #800000; transform: scale(1.05); }
+        .meet-btn { background: #FFC72C; color: #800000; }
+        .meet-btn:hover { background: #800000; color: white; transform: scale(1.05); }
 
-        .logout-btn { background: #ff9800; color: white;margin-top: 20px; }
-        .logout-btn:hover { background: #5a6268; }
+        .logout-btn { background: #ff9800; color: white; margin-top: 20px; }
+        .logout-btn:hover { background: #e68a00; }
+
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .calendar-drawer { width: 100%; right: -100%; }
+        }
     </style>
 </head>
 <body>
@@ -164,29 +247,33 @@
             </div>
         </div>
 
-        <!-- Pending Interview Requests -->
-        <div class="info-box" style="background: #fff3e0; border-left-color: #FF9800; grid-column: span 2;">
+        <!-- Pending Requests -->
+        <div class="info-box schedule-box" style="grid-column: span 2;">
             <h3><i class="fas fa-calendar-alt"></i> Pending Interview Requests</h3>
             {% if pending_requests %}
                 {% for req in pending_requests %}
-                    <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 10px;">
-                        <strong>From:</strong> {{ req.student.username }}<br>
-                        <strong>Requested:</strong> {{ req.requested_date|date:"M d, Y h:i A" }}<br>
-                        <strong>Message:</strong> {{ req.message|default:"No message" }}<br>
-                        <a href="{% url 'accept_request' req.id %}">
-                            <button style="background:#4CAF50;color:white;padding:8px 15px;margin:5px;border:none;border-radius:20px;">Accept</button>
-                        </a>
-                        <a href="{% url 'reject_request' req.id %}">
-                            <button style="background:#f44336;color:white;padding:8px 15px;margin:5px;border:none;border-radius:20px;">Reject</button>
-                        </a>
+                    <div class="request-item">
+                        <div>
+                            <strong>{{ req.student.username }}</strong><br>
+                            <strong>Date:</strong> {{ req.requested_date|date:"M d, Y" }} at {{ req.requested_date|time:"h:i A" }}<br>
+                            <span class="status pending">Pending</span>
+                        </div>
+                        <div>
+                            <a href="{% url 'accept_request' req.id %}">
+                                <button>Accept</button>
+                            </a>
+                            <a href="{% url 'reject_request' req.id %}">
+                                <button style="background:#f44336;">Reject</button>
+                            </a>
+                        </div>
                     </div>
                 {% endfor %}
             {% else %}
-                <p>No pending requests at the moment.</p>
+                <p>No pending requests.</p>
             {% endif %}
         </div>
 
-        <!-- Active Chats Section -->
+        <!-- Active Chats -->
         <div class="info-box chat-list" style="grid-column: span 2;">
             <h3><i class="fas fa-comments"></i> Active Chats</h3>
             {% if active_chats %}
@@ -194,33 +281,61 @@
                     <div class="chat-item">
                         <div>
                             <strong>{{ student.username }}</strong><br>
-                            <small>Last message: {{ student.last_message_time|date:"M d, h:i A" }}</small>
+                            <small>Last active: {{ student.last_message_time|date:"M d, h:i A" }}</small>
                         </div>
                         <a href="{% url 'chat' student.id %}">Open Chat</a>
                     </div>
                 {% endfor %}
             {% else %}
-                <p>No active chats yet. Students will appear here when they message you.</p>
+                <p>No active chats yet.</p>
             {% endif %}
         </div>
 
         <div class="btn-group">
             <a href="{% url 'select_topic' %}">
-                <button class="btn quiz-btn">
-                    Practice Quiz (Mentor Mode)
-                </button>
+                <button class="btn quiz-btn">Practice Quiz</button>
             </a>
             <a href="{% url 'start_manual_meet' %}">
-                <button class="btn meet-btn">
-                    Start Interview Session
-                </button>
+                <button class="btn meet-btn">Start Interview Session</button>
             </a>
             <a href="{% url 'logout' %}">
-                <button class="btn logout-btn">
-                    Logout
-                </button>
+                <button class="btn logout-btn">Logout</button>
             </a>
         </div>
     </div>
+
+    <!-- Calendar Drawer Toggle -->
+    <div class="calendar-toggle" onclick="toggleDrawer()">
+        <i class="fas fa-calendar-week"></i>
+    </div>
+
+    <!-- Calendar Drawer -->
+    <div class="calendar-drawer" id="calendarDrawer">
+        <div class="drawer-header">
+            <h2>All Scheduled Interviews</h2>
+            <span class="close-drawer" onclick="toggleDrawer()">&times;</span>
+        </div>
+
+        {% if all_requests %}
+            {% for req in all_requests %}
+                <div class="request-item">
+                    <div>
+                        <strong>{{ req.student.username }}</strong><br>
+                        <strong>Date:</strong> {{ req.requested_date|date:"l, M d, Y" }}<br>
+                        <strong>Time:</strong> {{ req.requested_date|time:"h:i A" }}<br>
+                        <span class="status {{ req.status }}">{{ req.get_status_display }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No scheduled interviews yet.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleDrawer() {
+            document.getElementById('calendarDrawer').classList.toggle('open');
+        }
+    </script>
 </body>
 </html>

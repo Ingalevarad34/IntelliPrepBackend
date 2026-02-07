@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, InterviewRequest, ChatMessage
+from .models import User, InterviewRequest, ChatMessage, ContactMessage  # Add ContactMessage
 
 class UserAdmin(BaseUserAdmin):
     list_display = ('username', 'email', 'user_type', 'package', 'company', 'role', 'is_active', 'date_joined')
@@ -24,10 +24,11 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
 
-# Register models
+# Register all models
 admin.site.register(User, UserAdmin)
 admin.site.register(InterviewRequest)
 admin.site.register(ChatMessage)
+admin.site.register(ContactMessage)  # Now visible in admin
 
 # Branding
 admin.site.site_header = "InterviewPrep Pro Admin"
