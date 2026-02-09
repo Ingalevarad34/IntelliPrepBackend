@@ -26,7 +26,7 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
 # ... rest unchanged
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyAM_7wlv-yD176U5o7Wjm79Wks1yf7dXKo')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyD6r-kD4iDQml_VSjJEBXBdYsDuPOrsd1M')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 

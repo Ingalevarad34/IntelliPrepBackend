@@ -144,7 +144,7 @@ def select_topic(request):
                     text += (page_text or '') + '\n'
 
                 model = genai.GenerativeModel(GEMINI_MODEL)
-                sum_prompt = f"Summarize key points clearly (focus on {topic} if relevant): {text[:4000]}"
+                sum_prompt = f"Summarize key points briefly (focus on {topic}): {text[:3000]}"
                 summary = model.generate_content(sum_prompt).text.strip()
                 messages.success(request, "Document summarized!")
             except Exception as e:
@@ -157,11 +157,10 @@ def select_topic(request):
 
         try:
             model = genai.GenerativeModel(GEMINI_MODEL)
-            base_context = f"Document summary: {summary}. " if summary else ''
+            base_context = f"Document: {summary}. " if summary else ''
             prompt = (
-                f"You are a friendly quiz master. "
-                f"Topic: {topic or 'Custom Document'}. {base_context}"
-                "Create engaging beginner question. Start with warm compliment, then question. Keep concise."
+                f"You are a quiz master. Topic: {topic or 'Custom'}. {base_context}"
+                "Ask one engaging beginner question on the main topic. Start with short compliment, then question. Very concise."
             )
             response = model.generate_content(prompt)
             full_text = response.text.strip()
@@ -171,123 +170,116 @@ def select_topic(request):
             request.session['history'] = []
             request.session['step'] = 1
             request.session['nest_level'] = 0
-            request.session['topic'] = topic or 'Custom Document'
+            request.session['topic'] = topic or 'Custom'
             request.session['document_summary'] = summary
             request.session['current_compliment'] = compliment
             request.session['current_question'] = question
             request.session.modified = True
 
-            url_topic = (topic or 'custom-document').lower().replace(' ', '-')
+            url_topic = (topic or 'custom').lower().replace(' ', '-')
             return redirect('quiz_view', topic=url_topic)
 
         except Exception as e:
-            messages.error(request, f"Quiz generation error: {str(e)}")
+            messages.error(request, f"Quiz error: {str(e)}")
             return render(request, 'question_gen/select_topic.html')
 
     return render(request, 'question_gen/select_topic.html')
 
+
 def parse_response(full_text):
-    # Your existing parse_response function (keep as is)
-    full_lower = full_text.lower()
-    if 'now,' in full_lower:
-        split_idx = full_lower.find('now,')
-        compliment = full_text[:split_idx].strip()
-        question = full_text[split_idx:].strip()
-    elif re.search(r'\.(?=\s*[A-Z])', full_text):
-        split_match = re.search(r'\.(?=\s*[A-Z])', full_text)
-        if split_match:
-            split_idx = split_match.end()
-            compliment = full_text[:split_idx].strip()
-            question = full_text[split_idx:].strip()
-        else:
-            compliment = full_text.split('.')[0].strip() + '.' if '.' in full_text else ''
-            question = full_text
-    elif '?' in full_text:
+    # Shortened logic
+    if '?' in full_text:
         split_idx = full_text.find('?') + 1
         compliment = full_text[:split_idx].strip()
         question = full_text[split_idx:].strip()
     else:
         compliment = ''
-        question = full_text
+        question = full_text.strip()
 
-    question = re.sub(r'`history:`', 'Based on our discussion:', question)
     return compliment, question
-
 
 
 @login_required
 def quiz_view(request, topic):
-    # Session validation
     if topic.replace('-', ' ').lower() != request.session.get('topic', '').lower():
-        messages.error(request, 'Session expired. Please start a new quiz.')
+        messages.error(request, 'Session expired.')
         return redirect('landing')
 
     history = request.session.get('history', [])
     step = request.session.get('step', 1)
     nest_level = request.session.get('nest_level', 0)
-    max_steps = 10
+    max_steps = 5
     summary = request.session.get('document_summary', '')
 
     # Quiz complete
     if step > max_steps:
-        final_score = len([h for h in history if 'correct' in h.get('feedback', '').lower()])
-        percentage = round((final_score / max_steps) * 100, 1)
+        correct = sum(1 for h in history if 'correct' in h.get('feedback', '').lower())
+        percentage = round((correct / max_steps) * 100, 1)
         request.session.clear()
         return render(request, 'question_gen/quiz_end.html', {
             'history': history,
             'topic': topic.replace('-', ' ').title(),
-            'total_steps': max_steps,
-            'score': final_score,
+            'total': max_steps,
+            'score': correct,
             'percentage': percentage,
-            'document_summary': summary
+            'summary': summary
         })
 
-    current_compliment = request.session.get('current_compliment', 'Welcome to your quiz!')
-    current_question = request.session.get('current_question', 'Let\'s begin!')
+    current_compliment = request.session.get('current_compliment', 'Welcome!')
+    current_question = request.session.get('current_question', "Let's start!")
 
     if request.method == 'POST':
         user_answer = request.POST.get('answer', '').strip()
         if not user_answer:
-            messages.error(request, "Please provide an answer.")
+            messages.error(request, "Please answer.")
             return redirect('quiz_view', topic=topic)
 
         try:
-            model = genai.GenerativeModel('gemini-2.5-flash-lite')
-            base_context = f"Document summary: {summary}. " if summary else ''
-            context = base_context + '\n'.join([f"Q: {h['question']} A: {h['user_answer']}" for h in history[-3:]])
+            model = genai.GenerativeModel(GEMINI_MODEL)
+            base_context = f"Document: {summary}. " if summary else ''
+            last_context = '\n'.join([f"Q: {h['question']} A: {h['user_answer']}" for h in history[-1:]])  # only last one
 
-            # Judge answer
+            # Judge answer (short)
             judge_prompt = (
-                f"Topic: {topic}. {context} "
-                f"Current Question: {current_question} "
-                f"User Answer: {user_answer} "
-                "Is this correct? Answer with 'Correct!' or 'Incorrect: [short explanation]' only."
+                f"Topic: {topic}. {base_context}{last_context}"
+                f"Question: {current_question}\nAnswer: {user_answer}\n"
+                "Correct? Reply only 'Correct!' or 'Incorrect: [short reason]'"
             )
             feedback = model.generate_content(judge_prompt).text.strip()
 
-            # Extract concept
-            concept_prompt = f"{base_context}From the answer '{user_answer}', extract ONE key technical concept/keyword to explore next."
+            # Extract concept (short)
+            concept_prompt = f"From answer '{user_answer}' on {topic}, extract ONE key concept/keyword. Reply only the concept."
             concept = model.generate_content(concept_prompt).text.strip()
 
-            # Decide next level
-            if nest_level < 2:
-                nest_text = f"Nest deeper into '{concept}'"
-                next_level = nest_level + 1
+            # FIXED Nesting: Only 1 level, then always branch
+            if nest_level == 0:
+                nest_text = f"Ask a deeper follow-up on '{concept}' (more specific/advanced than original question)."
+                next_level = 1
             else:
-                nest_text = f"Branch to a new topic: '{concept}'"
+                # Force completely new branch
+                previous_concepts = [h['concept'] for h in history if 'concept' in h]
+                prev_str = ', '.join(previous_concepts) if previous_concepts else 'none'
+                
+                # FIXED: Explicit new concept extraction
+                new_concept_prompt = (
+                    f"Topic: {topic}. Previous concepts: {prev_str}. "
+                    "Pick ONE completely new, unrelated concept from {topic} that hasn't been covered. Reply only the concept name."
+                )
+                concept = model.generate_content(new_concept_prompt).text.strip()
+                
+                nest_text = f"Start fresh with a core question on the new topic '{concept}' (ignore previous discussion)."
                 next_level = 0
 
-            # Generate next question
+            # Next question (short prompt)
             next_prompt = (
-                f"You are a quiz master on {topic}. {base_context}{nest_text}. "
-                f"Previous answer feedback: {feedback}. "
-                f"Create a follow-up question on '{concept}'. "
-                f"Start with a short compliment, then ask the question. Keep concise."
+                f"Quiz master for {topic}. {base_context}{nest_text} "
+                f"Previous feedback: {feedback}. "
+                f"Ask engaging question on '{concept}'. Start with short compliment, then question. Very concise."
             )
             next_response = model.generate_content(next_prompt).text.strip()
             compliment, question = parse_response(next_response)
 
-            # Save to history
+            # Save history
             history.append({
                 'question': current_question,
                 'user_answer': user_answer,
@@ -306,9 +298,9 @@ def quiz_view(request, topic):
             request.session.modified = True
 
             if 'correct' in feedback.lower():
-                messages.success(request, f"{feedback} → Exploring '{concept}' next!")
+                messages.success(request, f"{feedback} → Next: {concept}")
             else:
-                messages.error(request, f"{feedback} → Let's explore '{concept}' anyway!")
+                messages.error(request, f"{feedback} → Next: {concept}")
 
             return redirect('quiz_view', topic=topic)
 
@@ -323,10 +315,9 @@ def quiz_view(request, topic):
         'step': step,
         'total': max_steps,
         'nest_level': nest_level,
-        'history': history[-3:],  # Show only last 3
+        'history': history[-2:],
         'topic': topic_display,
     })
-
 # ==================== VIRTUAL INTERVIEW & MENTORSHIP ====================
 @login_required
 def start_manual_meet(request):

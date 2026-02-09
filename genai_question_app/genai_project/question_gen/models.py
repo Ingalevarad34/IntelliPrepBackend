@@ -26,7 +26,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=100, blank=True, null=True)
     skills = models.CharField(max_length=200, blank=True, null=True)  # Added skills field
     bio = models.TextField(blank=True, null=True)
-    profile_image = models.URLField(blank=True, null=True)
+    profile_image = models.URLField( max_length=500,blank=True, null=True)
 
     def __str__(self):
         return self.username
